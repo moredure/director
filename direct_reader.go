@@ -7,25 +7,25 @@ type directReader struct {
 	buf, rest []byte
 }
 
-func (r *directReader) Read(b []byte) (n int, err error) {
-	if r.rest != nil {
-		n = copy(b, r.rest)
-		if n < len(r.rest) {
-			r.rest = r.rest[n:]
+func (d *directReader) Read(b []byte) (n int, err error) {
+	if d.rest != nil {
+		n = copy(b, d.rest)
+		if n < len(d.rest) {
+			d.rest = d.rest[n:]
 			return
 		} else {
-			r.rest = nil
+			d.rest = nil
 		}
 	}
-	rx, err := r.r.Read(r.buf)
+	r, err := d.r.Read(d.buf)
 	if err != nil {
-		return n + rx, err
+		return n + r, err
 	}
-	nx := copy(b[n:], r.buf[:rx])
-	if (rx - nx) > 0 {
-		r.rest = r.buf[nx:rx]
+	w := copy(b[n:], d.buf[:r])
+	if (r - w) > 0 {
+		d.rest = d.buf[w:r]
 	}
-	return nx + n, nil
+	return w + n, nil
 }
 
 func NewDirectReader(r io.Reader, buf []byte) io.Reader {
