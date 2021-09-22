@@ -43,19 +43,18 @@ type directReader struct {
 }
 
 func (d *directReader) Read(b []byte) (n int, err error) {
-	if d.r != d.w {
-		n = copy(b, d.buf[d.w:d.r])
-		if n < d.r - d.w {
-			d.w += n
+	if d.r == d.w {
+		d.r, err = d.rd.Read(d.buf)
+		if err != nil {
 			return
 		}
+		d.w = copy(b, d.buf[:d.r])
+		return d.w, nil
+
 	}
-	d.r, err = d.rd.Read(d.buf)
-	if err != nil {
-		return n + d.r, err
-	}
-	d.w = copy(b[n:], d.buf[:d.r])
-	return d.w + n, nil
+	n = copy(b, d.buf[d.w:d.r])
+	d.w += n
+	return
 }
 
 func NewDirectReader(r io.Reader, buf []byte) io.Reader {
