@@ -46,6 +46,9 @@ func (b *DirectWriter) Flush() error {
 		return err
 	}
 	b.n = 0
+	for i := range b.buf {
+		b.buf[i] = 0
+	}
 	return nil
 }
 
