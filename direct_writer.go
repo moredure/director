@@ -59,15 +59,9 @@ func (b *DirectWriter) Buffered() int { return b.n }
 func (b *DirectWriter) Write(p []byte) (nn int, err error) {
 	for len(p) > b.Available() && b.err == nil {
 		var n int
-		if b.Buffered() == 0 {
-			// Large write, empty buffer.
-			// Write directly from p to avoid copy.
-			n, b.err = b.wr.Write(p)
-		} else {
-			n = copy(b.buf[b.n:], p)
-			b.n += n
-			b.Flush()
-		}
+		n = copy(b.buf[b.n:], p)
+		b.n += n
+		b.Flush()
 		nn += n
 		p = p[n:]
 	}
