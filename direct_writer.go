@@ -52,12 +52,8 @@ func (b *DirectWriter) Flush() error {
 	return nil
 }
 
-func (b *DirectWriter) Available() int { return len(b.buf) - b.n }
-
-func (b *DirectWriter) Buffered() int { return b.n }
-
 func (b *DirectWriter) Write(p []byte) (nn int, err error) {
-	for len(p) > b.Available() && b.err == nil {
+	for len(p) > (len(b.buf) - b.n) && b.err == nil {
 		var n int
 		n = copy(b.buf[b.n:], p)
 		b.n += n
